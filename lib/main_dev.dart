@@ -5,6 +5,6 @@ import 'package:flutter/material.dart';
 void main() async {
   AppConfig appConfig = AppConfig();
   appConfig.setFlavor = Flavor.dev;
-  appConfig.setBaseurl = "Dev url";
+  appConfig.setBaseurl = "Dev url with enceyption";
   runApp(await initializeApp(appConfig: appConfig));
 }

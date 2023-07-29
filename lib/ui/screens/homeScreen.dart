@@ -1,10 +1,7 @@
 import 'package:flavour_demo/app/appConfig.dart';
-import 'package:flavour_demo/cubits/botConversationCubit.dart';
-import 'package:flavour_demo/cubits/botQueryCubit.dart';
-import 'package:flavour_demo/data/repositories/botRepository.dart';
-import 'package:flavour_demo/ui/screens/botScreen.dart';
+import 'package:flavour_demo/data/models/classDetails.dart';
+import 'package:flavour_demo/ui/screens/imageParallaxAnimationScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,6 +12,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+  final classes = [
+    ClassDetails(id: "1", name: "8 - A"),
+    ClassDetails(id: "2", name: "8 - B")
+  ];
+
+  late ClassDetails? _classDetails = classes.first;
   //To animate the white container, logo scale
   late final AnimationController _animationController = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 800));
@@ -73,6 +76,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         title: Text(AppConfig().baseUrl),
       ),
       floatingActionButton: FloatingActionButton(onPressed: () {
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ImageParallaxScreen()));
         // if (_translateAnimationController.isCompleted) {
         //   _translateAnimationController
         //       .reverse()
@@ -93,22 +98,35 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         //           ),
         //         ], child: const PdfViewScreen())));
 
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => MultiBlocProvider(
-                  providers: [
-                    BlocProvider(
-                      create: (context) => BotQueryCubit(BotRepository()),
-                    ),
-                    BlocProvider(
-                      create: (context) =>
-                          BotConversationCubit(BotRepository()),
-                    ),
-                  ],
-                  child: const BotScreen(),
-                )));
+        // Navigator.of(context).push(MaterialPageRoute(
+        //     builder: (_) => MultiBlocProvider(
+        //           providers: [
+        //             BlocProvider(
+        //               create: (context) => BotQueryCubit(BotRepository()),
+        //             ),
+        //             BlocProvider(
+        //               create: (context) =>
+        //                   BotConversationCubit(BotRepository()),
+        //             ),
+        //           ],
+        //           child: const BotScreen(),
+        //         )));
       }),
       body: Stack(
         children: [
+          Align(
+            alignment: Alignment.topCenter,
+            child: DropdownButton<ClassDetails>(
+                value: _classDetails,
+                items: classes
+                    .map((e) => DropdownMenuItem<ClassDetails>(
+                        value: e, child: Text(e.name)))
+                    .toList(),
+                onChanged: (classDetails) {
+                  _classDetails = classDetails;
+                  setState(() {});
+                }),
+          ),
           SlideTransition(
             position: _whiteContainerAndIconTranslateAnimation,
             child: AnimatedBuilder(
