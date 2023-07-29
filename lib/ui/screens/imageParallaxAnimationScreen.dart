@@ -24,6 +24,10 @@ class _ImageParallaxScreenState extends State<ImageParallaxScreen>
 
   int selectedIndex = -1;
 
+  final imagesCount = 12;
+
+  List<ScrollController> innerImageScrollControllers = [];
+
   void scrollListener() {
     scrollAnimationController.value = Utils.inRange(
         currentValue: scrollController.offset,
@@ -31,10 +35,32 @@ class _ImageParallaxScreenState extends State<ImageParallaxScreen>
         maxValue: scrollController.position.maxScrollExtent,
         newMaxValue: 1.0,
         newMinValue: 0.0);
+
+    for (var controller in innerImageScrollControllers) {
+      controller.jumpTo(
+        Utils.inRange(
+            currentValue: scrollController.offset,
+            minValue: scrollController.position.minScrollExtent,
+            maxValue: scrollController.position.maxScrollExtent,
+            newMaxValue: controller.position.maxScrollExtent * (0.5),
+            newMinValue: controller.position.minScrollExtent * (0.5)),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    for (var i = 0; i < 12; i++) {
+      innerImageScrollControllers.add(ScrollController());
+    }
+    super.initState();
   }
 
   @override
   void dispose() {
+    for (var controller in innerImageScrollControllers) {
+      controller.dispose();
+    }
     scrollController.removeListener(scrollListener);
     scrollController.dispose();
     scrollAnimationController.dispose();
@@ -52,7 +78,7 @@ class _ImageParallaxScreenState extends State<ImageParallaxScreen>
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2, crossAxisSpacing: 15, mainAxisSpacing: 15),
-            itemCount: 12,
+            itemCount: imagesCount,
             itemBuilder: (context, index) {
               return LayoutBuilder(builder: (context, boxConstraints) {
                 return GestureDetector(
@@ -74,8 +100,8 @@ class _ImageParallaxScreenState extends State<ImageParallaxScreen>
                           AnimatedBuilder(
                             animation: scrollAnimationController,
                             builder: (context, child) {
-                              return Positioned(
-                                  top: positionAnimation.value, child: child!);
+                              //positionAnimation.value
+                              return Positioned(top: 0, child: child!);
                             },
                             child: Container(
                               width: boxConstraints.maxWidth,
@@ -87,6 +113,8 @@ class _ImageParallaxScreenState extends State<ImageParallaxScreen>
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(20),
                                   child: ListView(
+                                    controller:
+                                        innerImageScrollControllers[index],
                                     children: [
                                       Image.asset(
                                         "assets/images/minion.jpeg",
@@ -124,24 +152,3 @@ class _ImageParallaxScreenState extends State<ImageParallaxScreen>
             }));
   }
 }
-/*ClipRRect(
-                      child: Image.asset(
-                        "assets/images/minion.jpeg",
-                        fit: BoxFit.fitWidth,
-                      ),
-                    ),
-                    // AnimatedBuilder(
-                    //     animation: animationController,
-                    //     builder: (context, _) {
-                    //       return Container(
-                    //         decoration: BoxDecoration(
-                    //           border: Border.all(
-                    //               width: animationController.value * 25,
-                    //               color: Theme.of(context)
-                    //                   .scaffoldBackgroundColor),
-                    //           borderRadius: BorderRadius.circular(
-                    //               40 + (10 * animationController.value)),
-                    //         ),
-                    //       );
-                    //     }),
- */
